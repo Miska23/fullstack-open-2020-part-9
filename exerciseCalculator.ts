@@ -25,9 +25,9 @@ const parseExerciseArguments = (args: Array<string>): Array<number>  => {
   }
 }
 
-const calculateExercises = (arguments: number[]): void => {
-  const target = arguments[0]
-  const exerciseArguments = arguments.slice(1)
+const calculateExercises = (targetValueAndExerciseHours: number[]): void => {
+  const target = targetValueAndExerciseHours[0]
+  const exerciseArguments = targetValueAndExerciseHours.slice(1)
   const totalHours = exerciseArguments.reduce((acc, curr) => acc + curr, 0)
   const trainingDays = exerciseArguments.filter(exHours => exHours !== 0).length
   const average = totalHours / exerciseArguments.length
