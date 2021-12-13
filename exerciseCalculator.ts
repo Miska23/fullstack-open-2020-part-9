@@ -14,7 +14,7 @@ interface Result {
   average: number,
 }
 
-const parseExerciseArguments = (args: Array<string>): Array<number> | undefined => {
+const parseExerciseArguments = (args: Array<string>): Array<number>  => {
   if (args.length < 4) throw new Error('Not enough arguments');
 
   const exerciseArguments = args.slice(2)
