@@ -5,7 +5,7 @@ interface BmiInput {
   weight: number;
 }
 
-const parseBmiArguments = (args: Array<string>): BmiInput | undefined => {
+const parseBmiArguments = (args: Array<string>): BmiInput => {
   if (args.length < 4) throw new Error('Not enough arguments');
   if (args.length > 4) throw new Error('Too many arguments');
 
