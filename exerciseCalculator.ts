@@ -14,6 +14,7 @@ export interface Result {
   average: number,
 }
 
+
 const parseExerciseArguments = (args: Array<string>): Array<number>  => {
   if (args.length < 4) throw new Error('Not enough arguments');
 
@@ -25,7 +26,7 @@ const parseExerciseArguments = (args: Array<string>): Array<number>  => {
   }
 };
 
-const calculateExercises = (targetValueAndExerciseHours: number[]): void => {
+export const calculateExercises = (targetValueAndExerciseHours: number[]): Result => {
   const target = targetValueAndExerciseHours[0];
   const exerciseArguments = targetValueAndExerciseHours.slice(1);
   const totalHours = exerciseArguments.reduce((acc, curr) => acc + curr, 0);
@@ -41,7 +42,7 @@ const calculateExercises = (targetValueAndExerciseHours: number[]): void => {
     rating = 2;
   }
 
-  console.log({
+  return {
     periodLength: exerciseArguments.length,
     trainingDays,
     success: average >= target,
@@ -49,7 +50,7 @@ const calculateExercises = (targetValueAndExerciseHours: number[]): void => {
     ratingDescription,
     target,
     average
-  });
+  };
 };
 
 try {
