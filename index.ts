@@ -1,38 +1,53 @@
 import express from 'express';
 import { BmiInput, calculateBmi } from './bmiCalculator';
 
-
 const app = express();
 
+app.use(express.json());
 interface BmiQuery {
   height: string,
   weight: string,
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isBmiQuery = (query: any): query is BmiQuery => {
-  const {height, weight} = query
-  return height !== undefined && weight !== undefined
-}
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const {height, weight} = query;
+  return height !== undefined && weight !== undefined;
+};
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const parseQuery = (query: any): BmiInput =>  {
   if (isBmiQuery(query)) {
     if (query.height && !isNaN(Number(query.height)) && query.weight && !isNaN(Number(query.weight))) {
       return {
         heightInCm: Number(query.height),
         weight: Number(query.weight),
-      }
+      };
     } else {
       throw new Error('Query strings were not numbers!');
     }
   } else {
     throw new Error('Invalid query string format!');
   }
-}
+};
 
 app.get('/bmi', (req, res) => {
   try {
-    const {heightInCm, weight} = parseQuery(req.query)
-    res.json({weight, height: heightInCm, bmi: calculateBmi(heightInCm, weight)})
+    const {heightInCm, weight} = parseQuery(req.query);
+    res.json({weight, height: heightInCm, bmi: calculateBmi(heightInCm, weight)});
+  } catch (error) {
+    let errorMessage = 'Something went wrong.';
+    if (error instanceof Error) {
+      errorMessage += ' Error: ' + error.message;
+    }
+    res.status(400).send(errorMessage);
+  }
+});
+
+app.post('/bmi/exercises', (req, res) => {
+  try {
+    const {heightInCm, weight} = parseQuery(req.query);
+    res.json({weight, height: heightInCm, bmi: calculateBmi(heightInCm, weight)});
   } catch (error) {
     let errorMessage = 'Something went wrong.';
     if (error instanceof Error) {

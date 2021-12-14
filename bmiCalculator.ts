@@ -1,4 +1,4 @@
-type BmiResult = 'Underweight' | 'Normal' | 'Overweight'
+type BmiResult = 'Underweight' | 'Normal' | 'Overweight';
 
 export interface BmiInput {
   heightInCm: number;
@@ -6,16 +6,16 @@ export interface BmiInput {
 }
 
 export const calculateBmi = (heightInCm: number, weight: number): BmiResult => {
-  const heightInM = heightInCm / 100
-  const bmi = Number((weight / Math.pow(heightInM, 2)).toFixed(1))
+  const heightInM = heightInCm / 100;
+  const bmi = Number((weight / Math.pow(heightInM, 2)).toFixed(1));
 
   let resultText: BmiResult;
   if (bmi <= 18.4) {
-    resultText = 'Underweight'
+    resultText = 'Underweight';
   } else if (bmi > 18.4 && bmi < 24.9){
-    resultText = 'Normal'
+    resultText = 'Normal';
   } else {
-    resultText = 'Overweight'
+    resultText = 'Overweight';
   }
- return resultText
-}
+ return resultText;
+};
