@@ -9,14 +9,14 @@ interface BmiQuery {
   weight: string,
 }
 
-const isBmiQuery = (value: any): value is BmiQuery => {
-  const {height, weight} = value
+const isBmiQuery = (query: any): query is BmiQuery => {
+  const {height, weight} = query
   return height !== undefined && weight !== undefined
 }
 
 const parseQuery = (query: any): BmiInput =>  {
   if (isBmiQuery(query)) {
-    if (!isNaN(Number(query.height)) && !isNaN(Number(query.weight))) {
+    if (query.height && !isNaN(Number(query.height)) && query.weight && !isNaN(Number(query.weight))) {
       return {
         heightInCm: Number(query.height),
         weight: Number(query.weight),
@@ -29,16 +29,10 @@ const parseQuery = (query: any): BmiInput =>  {
   }
 }
 
-app.get('/hello', (_req, res) => {
-  res.send('Hello Full Stack');
-});
-
 app.get('/bmi', (req, res) => {
   try {
     const {heightInCm, weight} = parseQuery(req.query)
-    console.log("parseQuery(req.query): ", parseQuery(req.query));
-
-    res.json({bmi: calculateBmi(heightInCm, weight)})
+    res.json({weight, height: heightInCm, bmi: calculateBmi(heightInCm, weight)})
   } catch (error) {
     let errorMessage = 'Something went wrong.';
     if (error instanceof Error) {
