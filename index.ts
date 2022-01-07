@@ -1,16 +1,13 @@
 import express from 'express';
-import bmiRouter from './routes/bmi';
-import exerciseRouter from './routes/exercises';
-
 const app = express();
-
 app.use(express.json());
 
-app.use('/bmi', bmiRouter);
+const PORT = 3000;
 
-app.use('/exercises', exerciseRouter);
-
-const PORT = 3003;
+app.get('/ping', (_req, res) => {
+  console.log('someone pinged here');
+  res.send('pong');
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
