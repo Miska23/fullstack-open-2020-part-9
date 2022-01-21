@@ -15,4 +15,6 @@ interface Patient {
 
 type PatientWithoutSsn = Omit<Patient, "ssn">;
 
-export { Diagnose, Patient, PatientWithoutSsn };
+type PatientWithoutId = Omit<Patient, 'id'>;
+
+export { Diagnose, Patient, PatientWithoutSsn, PatientWithoutId  };
