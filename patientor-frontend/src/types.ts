@@ -10,11 +10,26 @@ export enum Gender {
   Other = "other"
 }
 
+export enum AppRoute {
+  Patients = "/patients",
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface Entry {
+}
+
 export interface Patient {
-  id: string;
-  name: string;
-  occupation: string;
-  gender: Gender;
-  ssn?: string;
-  dateOfBirth?: string;
+  id: string,
+  name: string,
+  dateOfBirth: string,
+  ssn: string,
+  gender: Gender,
+  occupation: string,
+  entries: Entry[],
+}
+
+export type PublicPatient = Omit<Patient, 'ssn' | 'entries'>;
+
+export interface PatientRouteParams{
+  id: string
 }
