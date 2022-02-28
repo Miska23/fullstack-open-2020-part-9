@@ -4,7 +4,7 @@ import { Container, Header, Icon, List, SemanticICONS } from "semantic-ui-react"
 
 import { AppRoute, Gender, Patient } from "../types";
 import { apiBaseUrl } from "../constants";
-import { useStateValue } from "../state";
+import { updatePatientList, useStateValue } from "../state";
 import { assertNever, isCompletePatientEntry } from "../utils";
 
 interface Props {
@@ -21,7 +21,7 @@ const PatientInfoPage = ({patientId}: Props) => {
         `${apiBaseUrl}${AppRoute.Patients}/${id}`
         );
         if (patient) {
-          dispatch({ type: "UPDATE_PATIENT_LIST", payload: patient });
+          dispatch(updatePatientList(patient));
         } else {
           setError("Information for patient not found");
         }
