@@ -27,11 +27,6 @@ const isGender = (param: any): param is Gender => {
   return Object.values(Gender).find(value => param === value) ? true : false;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const isEntry = (param: any): param is Entry[] => {
-  return param !== undefined ? true : false;
-};
-
 const parseGender = (gender: unknown): Gender => {
   if (!gender || !isGender(gender)) {
     throw new Error('Incorrect or missing gender: ' + gender);
@@ -39,11 +34,21 @@ const parseGender = (gender: unknown): Gender => {
   return gender;
 };
 
-const parseEntries = (entry: unknown): Entry[] => {
-  if (!Array.isArray(entry) || !isEntry(entry)) {
-    throw new Error('Incorrect or missing entries: ' + entry);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const isEntryType = (param: any): param is Pick<Entry, "type"> => {
+  return param === "HealthCheck" || param === "OccupationalHealthcare" || param === "Hospital";
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const isEntryArray = (param: any[]): param is Entry[] => {
+  return param.length === 0 || param.every(p => p.type !== undefined && isEntryType(p.type));
+};
+
+const parseEntries = (entries: unknown): Entry[] => {
+  if (!Array.isArray(entries) || !isEntryArray(entries)) {
+    throw new Error('Incorrect or missing entries: ' + JSON.stringify(entries));
   }
-  return entry;
+  return entries;
 };
 
 type ExpectedRequestBody = { name: unknown, dateOfBirth: unknown, ssn: unknown, gender: unknown, occupation: unknown, entries: unknown };
