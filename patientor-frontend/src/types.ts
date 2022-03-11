@@ -12,6 +12,7 @@ export enum Gender {
 
 export enum AppRoute {
   Patients = "/patients",
+  Diagnoses = "/diagnoses",
 }
 
 interface BaseEntry {

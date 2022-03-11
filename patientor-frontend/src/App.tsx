@@ -4,8 +4,8 @@ import { Route, Link, Switch, useRouteMatch } from "react-router-dom";
 import { Button, Divider, Header, Container } from "semantic-ui-react";
 
 import { apiBaseUrl } from "./constants";
-import { setPatientList, useStateValue } from "./state";
-import { AppRoute, PublicPatient, PatientRouteParams } from "./types";
+import { setDiagnosisList, setPatientList, useStateValue } from "./state";
+import { AppRoute, PublicPatient, PatientRouteParams, Diagnosis } from "./types";
 
 import PatientListPage from "./PatientListPage";
 import PatientInfoPage from "./PatientInfoPage";
@@ -26,7 +26,20 @@ const App = () => {
         console.error(e);
       }
     };
+
+    const fetchDiagnosisList = async () => {
+      try {
+        const { data: diagnosisListFromApi } = await axios.get<Diagnosis[]>(
+          `${apiBaseUrl}${AppRoute.Diagnoses}`
+        );
+        dispatch(setDiagnosisList(diagnosisListFromApi));
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
     void fetchPatientList();
+    void fetchDiagnosisList();
   }, []);
 
   const match = useRouteMatch<PatientRouteParams>(`${AppRoute.Patients}/:id`);
