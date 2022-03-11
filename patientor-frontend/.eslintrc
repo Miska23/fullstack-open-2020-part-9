@@ -11,7 +11,9 @@
     "es6": true
   },
   "rules": {
+    "indent": ["error", 2],
     "@typescript-eslint/semi": ["error"],
+    // "@typescript-eslint/indent": ["error", 2],
     "@typescript-eslint/explicit-function-return-type": 0,
     "@typescript-eslint/explicit-module-boundary-types": 0,
     "@typescript-eslint/no-unsafe-member-access": 0,

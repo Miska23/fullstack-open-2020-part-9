@@ -60,7 +60,7 @@ const PatientListPage = () => {
                 <Button onClick={() => history.push(`${AppRoute.Patients}/${patient.id}`)}>
                   {patient.name}
                 </Button>
-                </Table.Cell>
+              </Table.Cell>
               <Table.Cell>{patient.gender}</Table.Cell>
               <Table.Cell>{patient.occupation}</Table.Cell>
               <Table.Cell>

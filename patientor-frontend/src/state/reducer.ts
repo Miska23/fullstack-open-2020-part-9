@@ -17,35 +17,35 @@ export type Action =
 
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case "SET_PATIENT_LIST":
-      return {
-        ...state,
-        patients: {
-          ...action.payload.reduce(
-            (memo, patient) => ({ ...memo, [patient.id]: patient }),
-            {}
-          ),
-          ...state.patients
-        }
-      };
-    case "UPDATE_PATIENT_LIST":
-      return {
-        ...state,
-        patients: {
-          ...state.patients,
-          [action.payload.id]: {...state.patients[action.payload.id], ssn: action.payload.ssn, entries: action.payload.entries}
-        }
-      };
-    case "ADD_PATIENT":
-      return {
-        ...state,
-        patients: {
-          ...state.patients,
-          [action.payload.id]: action.payload
-        }
-      };
-    default:
-      return state;
+  case "SET_PATIENT_LIST":
+    return {
+      ...state,
+      patients: {
+        ...action.payload.reduce(
+          (memo, patient) => ({ ...memo, [patient.id]: patient }),
+          {}
+        ),
+        ...state.patients
+      }
+    };
+  case "UPDATE_PATIENT_LIST":
+    return {
+      ...state,
+      patients: {
+        ...state.patients,
+        [action.payload.id]: {...state.patients[action.payload.id], ssn: action.payload.ssn, entries: action.payload.entries}
+      }
+    };
+  case "ADD_PATIENT":
+    return {
+      ...state,
+      patients: {
+        ...state.patients,
+        [action.payload.id]: action.payload
+      }
+    };
+  default:
+    return state;
   }
 };
 

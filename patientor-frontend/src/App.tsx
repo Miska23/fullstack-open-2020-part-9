@@ -30,28 +30,28 @@ const App = () => {
   }, []);
 
   const match = useRouteMatch<PatientRouteParams>(`${AppRoute.Patients}/:id`);
-      const patient = match
-        ? state.patients[match.params.id]
-        : null;
+  const patient = match
+    ? state.patients[match.params.id]
+    : null;
 
   return (
     <div className="App">
-        <Container>
-          <Header as="h1">Patientor</Header>
-          <Button as={Link} to="/" primary>
+      <Container>
+        <Header as="h1">Patientor</Header>
+        <Button as={Link} to="/" primary>
             Home
-          </Button>
-          <Divider hidden />
-          <Switch>
-            {patient &&
+        </Button>
+        <Divider hidden />
+        <Switch>
+          {patient &&
             <Route path={`${AppRoute.Patients}/:id`}>
               <PatientInfoPage patientId={patient.id}/>
             </Route>}
-            <Route path="/">
-              <PatientListPage />
-            </Route>
-          </Switch>
-        </Container>
+          <Route path="/">
+            <PatientListPage />
+          </Route>
+        </Switch>
+      </Container>
     </div>
   );
 };
