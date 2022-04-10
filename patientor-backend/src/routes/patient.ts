@@ -36,7 +36,8 @@ router.post('/:id/entries', (req, res) => {
   try {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const newEntry = toNewEntry(req.body);
-    addEntryToPatient(newEntry, req.params.id);
+    const addedEntry = addEntryToPatient(newEntry, req.params.id);
+    res.json(addedEntry);
   } catch (e: unknown) {
     if (e instanceof Error) {
       res.status(400).send(e.message);

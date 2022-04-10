@@ -1,12 +1,14 @@
 import React, { useEffect } from "react";
 import axios from "axios";
-import { Container, Header, Icon, List, Loader, SemanticICONS } from "semantic-ui-react";
+import { Button, Container, Header, Icon, List, Loader, SemanticICONS } from "semantic-ui-react";
 
-import { AppRoute, Gender, Patient } from "../types";
+import { AppRoute, Entry, EntryWithoutId, Gender, Patient } from "../types";
 import { apiBaseUrl } from "../constants";
-import { updatePatientList, useStateValue } from "../state";
+import { addEntryToPatient, updatePatientList, useStateValue } from "../state";
 import { assertNever, isCompletePatientEntry } from "../utils";
 import EntryList from "./EntryList";
+import AddEntryModal from "../AddEntryModal ";
+import { HospitalEntryFormValues } from "../AddEntryModal /AddEntryForm";
 
 interface Props {
   patientId: string;
@@ -14,8 +16,9 @@ interface Props {
 
 const PatientInfoPage = ({patientId}: Props) => {
   const [{ patients }, dispatch] = useStateValue();
-  const [error, setError] = React.useState<string | undefined>();
   const [loading, setLoading] = React.useState<boolean>(true);
+  const [modalOpen, setModalOpen] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string | undefined>();
 
   useEffect(() => {
     const fetchPatientInfo = async (id: string) => {
@@ -37,6 +40,36 @@ const PatientInfoPage = ({patientId}: Props) => {
       setLoading(false);
     }
   }, []);
+
+  const openModal = (): void => setModalOpen(true);
+
+  const closeModal = (): void => {
+    setModalOpen(false);
+    setError(undefined);
+  };
+
+  const submitNewEntry = async (values: HospitalEntryFormValues) => {
+    const entry: EntryWithoutId = {
+      ...values,
+      type: 'Hospital',
+      discharge: {
+        date: values.dischargeDate,
+        criteria: values.dischargeCriteria,
+      }
+    };
+
+    try {
+      const { data: newEntry } = await axios.post<Entry>(
+        `${apiBaseUrl}/patients/${patientId}/entries`,
+        entry
+      );
+      dispatch(addEntryToPatient({entry: newEntry, id: patientId}));
+      closeModal();
+    } catch (e) {
+      console.error(e.response?.data || 'Unknown Error');
+      setError(e.response?.data?.error || 'Unknown error');
+    }
+  };
 
   const renderPatientInfo = () => {
     const {name, gender, ssn, occupation, entries} = patients[patientId];
@@ -70,6 +103,13 @@ const PatientInfoPage = ({patientId}: Props) => {
           <List.Item>occupation: {occupation}</List.Item>
         </List>
         <EntryList listItems={entries}/>
+        <AddEntryModal
+          modalOpen={modalOpen}
+          onSubmit={submitNewEntry}
+          error={error}
+          onClose={closeModal}
+        />
+        <Button onClick={() => openModal()}>Add New Entry</Button>
       </Container>
     );
   };

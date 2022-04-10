@@ -34,7 +34,7 @@ const addPatient = (entry: PatientWithoutId): Patient => {
   return newPatientEntry;
 };
 
-const addEntryToPatient = (entry: EntryWithoutId, patientId: string): void => {
+const addEntryToPatient = (entry: EntryWithoutId, patientId: string): Entry => {
   
   const patientToUpdate = patients.find(p => p.id === patientId);
   
@@ -45,6 +45,7 @@ const addEntryToPatient = (entry: EntryWithoutId, patientId: string): void => {
       ...entry
     };
     patientToUpdate.entries.push(newEntry);
+    return newEntry;
   } else {
     throw new Error("No patient found with id: " + patientId);    
   }
