@@ -5,6 +5,7 @@ import { Field, Formik, Form } from "formik";
 import { HospitalEntry } from "../types";
 import { useStateValue } from "../state";
 import { TextField, DiagnosisSelection } from "../AddPatientModal/FormField";
+import { isValidDate } from "../utils";
 
 interface Props {
   onSubmit: (values: HospitalEntryFormValues) => void;
@@ -31,9 +32,13 @@ export const AddEntryForm = ({ onSubmit, onCancel } : Props ) => {
       onSubmit={onSubmit}
       validate={values => {
         const requiredError = "Field is required";
+        const malformattedDateError = "Invalid date";
         const errors: { [field: string]: string } = {};
         if (!values.description) {
           errors.description = requiredError;
+        }
+        if (!isValidDate(values.date)) {
+          errors.date = malformattedDateError;
         }
         if (!values.date) {
           errors.date = requiredError;
@@ -41,11 +46,14 @@ export const AddEntryForm = ({ onSubmit, onCancel } : Props ) => {
         if (!values.specialist) {
           errors.specialist = requiredError;
         }
+        if (!isValidDate(values.dischargeDate)) {
+          errors.dischargeDate = malformattedDateError;
+        }
         if (!values.dischargeDate) {
-          errors.discharge = requiredError;
+          errors.dischargeDate = requiredError;
         }
         if (!values.dischargeCriteria) {
-          errors.discharge = requiredError;
+          errors.dischargeCriteria = requiredError;
         }
         return errors;
       }}
