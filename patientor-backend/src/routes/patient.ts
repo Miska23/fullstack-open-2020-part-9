@@ -1,6 +1,6 @@
 import express from 'express';
-import { getPublicEntries, addPatient, findById } from '../services/patientService';
-import toNewPatientEntry from '../utils';
+import { getPublicEntries, addPatient, findById, addEntryToPatient } from '../services/patientService';
+import { toNewEntry, toNewPatientEntry } from '../utils';
 
 const router = express.Router();
 
@@ -23,6 +23,20 @@ router.post('/', (req, res) => {
     const newPatientEntry = toNewPatientEntry(req.body);
     const addedEntry = addPatient(newPatientEntry);
     res.json(addedEntry);
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      res.status(400).send(e.message);
+    } else {
+      res.status(400).send('Unknown error occured');
+    }
+  }
+});
+
+router.post('/:id/entries', (req, res) => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const newEntry = toNewEntry(req.body);
+    addEntryToPatient(newEntry, req.params.id);
   } catch (e: unknown) {
     if (e instanceof Error) {
       res.status(400).send(e.message);
