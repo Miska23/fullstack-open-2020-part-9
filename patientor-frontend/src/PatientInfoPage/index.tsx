@@ -8,7 +8,6 @@ import { addEntryToPatient, updatePatientList, useStateValue } from "../state";
 import { assertNever, isCompletePatientEntry } from "../utils";
 import EntryList from "./EntryList";
 import AddEntryModal from "../AddEntryModal ";
-import { HospitalEntryFormValues } from "../AddEntryModal /AddEntryForm";
 
 interface Props {
   patientId: string;
@@ -48,14 +47,23 @@ const PatientInfoPage = ({patientId}: Props) => {
     setError(undefined);
   };
 
-  const submitNewEntry = async (values: HospitalEntryFormValues) => {
-    const entry: EntryWithoutId = {
-      ...values,
-      type: 'Hospital',
-      discharge: {
-        date: values.dischargeDate,
-        criteria: values.dischargeCriteria,
-      }
+  const submitNewEntry = async (_values: EntryWithoutId) => {
+    // const entry: EntryWithoutId = {
+    //   ...values,
+    //   type: 'Hospital',
+    //   discharge: {
+    //     date: values.dischargeDate,
+    //     criteria: values.dischargeCriteria,
+    //   }
+    // };
+
+    const entry = {
+      id: 'b4f4eca1-2aa7-4b13-9a18-4a5535c3c8da',
+      date: '2019-10-20',
+      specialist: 'MD House',
+      type: 'HealthCheck',
+      description: 'Yearly control visit. Cholesterol levels back to normal.',
+      healthCheckRating: 0,
     };
 
     try {

@@ -1,7 +1,7 @@
 import React from "react";
 import { ErrorMessage, Field, FieldProps, FormikProps } from "formik";
 import { Dropdown, DropdownProps, Form } from "semantic-ui-react";
-import { Diagnosis, Gender } from "../types";
+import { Diagnosis, EntryWithoutId, Gender } from "../types";
 
 // structure of a single option
 export type GenderOption = {
@@ -38,7 +38,7 @@ interface TextProps extends FieldProps {
   placeholder: string;
 }
 
-export const TextField= ({
+export const TextField = ({
   field,
   label,
   placeholder
@@ -104,6 +104,68 @@ export const DiagnosisSelection = ({
         fluid
         multiple
         search
+        selection
+        options={stateOptions}
+        onChange={onChange}
+      />
+      <ErrorMessage name={field} />
+    </Form.Field>
+  );
+};
+
+type EntryKey = EntryWithoutId['type'];
+
+export const EntryTypeSelection = ({
+  entryTypes,
+  setFieldValue,
+  setFieldTouched
+}: {
+  entryTypes: EntryKey[];
+  setFieldValue: FormikProps<{ type: EntryKey }>["setFieldValue"];
+  setFieldTouched: FormikProps<{ type: EntryKey }>["setFieldTouched"];
+}) => {
+  const field = "type";
+  const onChange = (
+    _event: React.SyntheticEvent<HTMLElement, Event>,
+    data: DropdownProps
+  ) => {
+    setFieldTouched(field, true);
+    setFieldValue(field, data.value);
+  };
+
+  type DictionaryEntry<T> = {
+    name: T,
+    displayName: string
+  };
+
+  type EntryTypeDictionary = Record<EntryKey, DictionaryEntry<EntryKey>>;
+  
+  const entryTypeDictionary: EntryTypeDictionary = {
+    Hospital: {
+      name: "Hospital",
+      displayName: "Hospital entry"
+    },
+    HealthCheck: {
+      name: "HealthCheck",
+      displayName: "Health check entry"
+    },
+    OccupationalHealthcare: {
+      name: "OccupationalHealthcare",
+      displayName: "Occupational health check entry"
+    }
+  }; 
+
+  const stateOptions = entryTypes.map(type => ({
+    key: type,
+    text: entryTypeDictionary[type].displayName,
+    value: type
+  }));
+
+  return (
+    <Form.Field>
+      <label>Entry type</label>
+      <Dropdown
+        fluid
         selection
         options={stateOptions}
         onChange={onChange}
