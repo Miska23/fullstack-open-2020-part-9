@@ -1,4 +1,4 @@
-import { Entry, HealthCheckEntry, OccupationalHealthcareEntry, Patient } from "./types";
+import { Entry, HealthCheckEntry, HealthCheckRating, OccupationalHealthcareEntry, Patient } from "./types";
 
 /**
  * Helper function for exhaustive type checking
@@ -35,4 +35,8 @@ export const isValidDate = (date: unknown): boolean => {
     check = false;
   }
   return check;
+};
+
+export const isValidHealthCheckRating = (param: unknown): boolean => {  
+  return typeof param === 'number' && Object.values(HealthCheckRating).some(value =>  value === param);
 };

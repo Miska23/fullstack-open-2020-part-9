@@ -5,6 +5,7 @@ import { Field, Formik, Form } from "formik";
 import { EntryWithoutId, HealthCheckRating, HospitalEntry } from "../types";
 import { useStateValue } from "../state";
 import { TextField, DiagnosisSelection, EntryTypeSelection, NumberField } from "../AddPatientModal/FormField";
+import { assertNever, isValidHealthCheckRating, isValidDate } from "../utils";
 
 interface Props {
   onSubmit: (values: EntryWithoutId) => void;
@@ -15,10 +16,6 @@ export type HospitalEntryFormValues = Omit<HospitalEntry, 'id' | 'discharge'> & 
   dischargeDate: string,
   dischargeCriteria: string,
 };
-
-// type HealthCheckEntryFormValues = HospitalEntryFormValues;
-
-// type FormValues = HospitalEntryFormValues | HealthCheckEntryFormValues;
 
 export const AddEntryForm = ({ onSubmit, onCancel } : Props ) => {
   const [{ diagnoses }] = useStateValue();
@@ -67,13 +64,105 @@ export const AddEntryForm = ({ onSubmit, onCancel } : Props ) => {
             name="sickLeave.endDate"
             component={TextField}
           />
+          <Field
+            label="Health Check Rating"
+            name="healthCheckRating"
+            min={HealthCheckRating.Healthy}
+            max={HealthCheckRating.CriticalRisk}
+            component={NumberField}
+          />
         </>
       );
     
     default:
-      // assertNever(values.type);
+      assertNever(values);
       return null;
     }
+  };
+
+  /* TODO: flatten object values and replace any with string */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  type FieldErrors = { [field: string]: any };
+
+  const validate = (values: EntryWithoutId): FieldErrors => {
+    const requiredError = "Field is required";
+    const malformattedDateError = "Invalid date";
+    const malformattedNumberError = "Invalid value. Valid values are 0 - 3";
+    const errors: FieldErrors = {};
+
+    if (!values.description) {
+      errors.description = requiredError;
+    }
+
+    if (!values.specialist) {
+      errors.specialist = requiredError;
+    }
+
+    if (!isValidDate(values.date)) {
+      errors.date = malformattedDateError;
+    }
+
+    switch (values.type) {
+    case "Hospital":
+      if (!values.specialist) {
+        errors.specialist = requiredError;
+      }
+      if (!isValidDate(values.discharge.date)) {
+        errors.dischargeDate = malformattedDateError;
+      }
+
+      if (values.discharge) {
+        errors.discharge = {};
+        if (!isValidDate(values.discharge.date)) {
+          errors.discharge.date = malformattedDateError;
+        }
+        if (!values.discharge.date) {
+          errors.discharge.date = requiredError;
+        }
+        if (!values.discharge.criteria) {
+          errors.discharge.criteria = requiredError;
+        }
+  
+      }
+
+      break;
+    case "HealthCheck":
+      if (!isValidHealthCheckRating(values.healthCheckRating)) {
+        errors.healthCheckRating = malformattedNumberError;
+      }
+      break;
+    case "OccupationalHealthcare":
+      if (!isValidHealthCheckRating(values.healthCheckRating)) {
+        errors.healthCheckRating = malformattedNumberError;
+      }
+
+      if (values.employerName ) {
+        errors.employerName = requiredError;
+      }
+
+      if (values.sickLeave) {
+        errors.sickLeave = {};
+        if (values.sickLeave.startDate && !isValidDate(values.sickLeave.startDate)) {
+          errors.sickLeave.startDate = malformattedDateError;
+        }
+        if (values.sickLeave.endDate && !values.sickLeave.startDate) {
+          errors.sickLeave.startDate = requiredError;
+        }
+        if (values.sickLeave.startDate && !values.sickLeave.endDate) {
+          errors.sickLeave.endDate = requiredError;
+        }
+        if (values.sickLeave.endDate && !isValidDate(values.sickLeave.endDate)) {
+          errors.sickLeave.endDate = malformattedDateError;
+        }
+      }
+      break;
+    default:
+      assertNever(values);
+      break;
+    }
+    console.log('errors: ', errors);
+    
+    return errors; 
   };
 
   return (
@@ -87,36 +176,9 @@ export const AddEntryForm = ({ onSubmit, onCancel } : Props ) => {
           date: "",
           criteria: ""
         }
-        // healthCheckRating: HealthCheckRating.Healthy
       }}
       onSubmit={onSubmit}
-      // validate={values => {
-      //   const requiredError = "Field is required";
-      //   const malformattedDateError = "Invalid date";
-      //   const errors: { [field: string]: string } = {};
-      //   if (!values.description) {
-      //     errors.description = requiredError;
-      //   }
-      //   if (!isValidDate(values.date)) {
-      //     errors.date = malformattedDateError;
-      //   }
-      //   if (!values.date) {
-      //     errors.date = requiredError;
-      //   }
-      //   if (!values.specialist) {
-      //     errors.specialist = requiredError;
-      //   }
-      //   if (!isValidDate(values.dischargeDate)) {
-      //     errors.dischargeDate = malformattedDateError;
-      //   }
-      //   if (!values.dischargeDate) {
-      //     errors.dischargeDate = requiredError;
-      //   }
-      //   if (!values.dischargeCriteria) {
-      //     errors.dischargeCriteria = requiredError;
-      //   }
-      //   return errors;
-      // }}
+      validate={values => validate(values)}
     >
       {({ isValid, dirty, setFieldValue, setFieldTouched, values  }) => {
         console.log('miska / values: ', values);
