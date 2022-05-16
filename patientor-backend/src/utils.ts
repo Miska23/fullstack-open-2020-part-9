@@ -183,7 +183,7 @@ const toNewEntry = ({
     return {
       ...baseEntryWithEntryType,
       type: 'OccupationalHealthcare',
-      healthCheckRating: parseHealthCheckRating(healthCheckRating),
+      ...(healthCheckRating !== undefined && {healthCheckRating: parseHealthCheckRating(healthCheckRating)}),
       employerName: parseString(employerName),
       sickLeave: parseSickLeave(sickLeave)
     };    

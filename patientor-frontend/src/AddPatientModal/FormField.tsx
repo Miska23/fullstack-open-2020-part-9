@@ -62,16 +62,21 @@ interface NumberProps extends FieldProps {
   max: number;
 }
 
-export const NumberField = ({ field, label, min, max } : NumberProps ) => (
-  <Form.Field>
-    <label>{label}</label>
-    <Field {...field} type='number' min={min} max={max} />
+export const NumberField = ({ field, label, min, max } : NumberProps ) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const value = field.value === undefined ? "" : field.value;
+  
+  return (
+    <Form.Field>
+      <label>{label}</label>
+      <Field {...field} type='number' min={min} max={max} value={value as string | number}/>
 
-    <div style={{ color:'red' }}>
-      <ErrorMessage name={field.name} />
-    </div>
-  </Form.Field>
-);
+      <div style={{ color:'red' }}>
+        <ErrorMessage name={field.name} />
+      </div>
+    </Form.Field>
+  );
+};
 
 export const DiagnosisSelection = ({
   diagnoses,
@@ -118,18 +123,20 @@ type EntryKey = EntryWithoutId['type'];
 export const EntryTypeSelection = ({
   entryTypes,
   setFieldValue,
-  setFieldTouched
+  setFieldTouched,
+  initialValues
 }: {
   entryTypes: EntryKey[];
   setFieldValue: FormikProps<{ type: EntryKey }>["setFieldValue"];
   setFieldTouched: FormikProps<{ type: EntryKey }>["setFieldTouched"];
+  initialValues: FormikProps<{ type: EntryKey }>["initialValues"];
 }) => {
   const field = "type";
   const onChange = (
     _event: React.SyntheticEvent<HTMLElement, Event>,
     data: DropdownProps
   ) => {
-    setFieldTouched(field, true);
+    setFieldTouched(field, true, false);
     setFieldValue(field, data.value);
   };
 
@@ -169,6 +176,7 @@ export const EntryTypeSelection = ({
         selection
         options={stateOptions}
         onChange={onChange}
+        defaultValue={initialValues.type}
       />
       <ErrorMessage name={field} />
     </Form.Field>

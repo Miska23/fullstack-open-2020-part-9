@@ -2,12 +2,13 @@ import React, { useEffect } from "react";
 import axios from "axios";
 import { Button, Container, Header, Icon, List, Loader, SemanticICONS } from "semantic-ui-react";
 
-import { AppRoute, Entry, EntryWithoutId, Gender, Patient } from "../types";
+import { AppRoute, Entry, Gender, Patient } from "../types";
 import { apiBaseUrl } from "../constants";
-import { addEntryToPatient, updatePatientList, useStateValue } from "../state";
-import { assertNever, isCompletePatientEntry } from "../utils";
+import {  addEntryToPatient, updatePatientList, useStateValue } from "../state";
+import { assertNever, isCompletePatientEntry, parseFormValuesIntroEntry } from "../utils";
 import EntryList from "./EntryList";
 import AddEntryModal from "../AddEntryModal ";
+import { FormValues } from "../AddEntryModal /AddEntryForm";
 
 interface Props {
   patientId: string;
@@ -47,32 +48,16 @@ const PatientInfoPage = ({patientId}: Props) => {
     setError(undefined);
   };
 
-  const submitNewEntry = async (_values: EntryWithoutId) => {
-    // const entry: EntryWithoutId = {
-    //   ...values,
-    //   type: 'Hospital',
-    //   discharge: {
-    //     date: values.dischargeDate,
-    //     criteria: values.dischargeCriteria,
-    //   }
-    // };
-
-    const entry = {
-      id: 'b4f4eca1-2aa7-4b13-9a18-4a5535c3c8da',
-      date: '2019-10-20',
-      specialist: 'MD House',
-      type: 'HealthCheck',
-      description: 'Yearly control visit. Cholesterol levels back to normal.',
-      healthCheckRating: 0,
-    };
-
+  const submitNewEntry = async (entry: FormValues) => {
     try {
+      const entryToAdd = parseFormValuesIntroEntry(entry);
       const { data: newEntry } = await axios.post<Entry>(
         `${apiBaseUrl}/patients/${patientId}/entries`,
-        entry
+        entryToAdd
       );
       dispatch(addEntryToPatient({entry: newEntry, id: patientId}));
       closeModal();
+
     } catch (e) {
       console.error(e.response?.data || 'Unknown Error');
       setError(e.response?.data?.error || 'Unknown error');

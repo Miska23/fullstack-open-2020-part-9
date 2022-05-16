@@ -2,25 +2,32 @@ import React from "react";
 import { Grid, Button } from "semantic-ui-react";
 import { Field, Formik, Form } from "formik";
 
-import { EntryWithoutId, HealthCheckRating, HospitalEntry } from "../types";
+import { HealthCheckEntry, HealthCheckRating, HospitalEntry, OccupationalHealthcareEntry } from "../types";
 import { useStateValue } from "../state";
 import { TextField, DiagnosisSelection, EntryTypeSelection, NumberField } from "../AddPatientModal/FormField";
 import { assertNever, isValidHealthCheckRating, isValidDate } from "../utils";
 
 interface Props {
-  onSubmit: (values: EntryWithoutId) => void;
+  onSubmit: (values: FormValues) => void;
   onCancel: () => void;
 }
 
-export type HospitalEntryFormValues = Omit<HospitalEntry, 'id' | 'discharge'> & {
+type HospitalEntryFormValues = Omit<HospitalEntry, 'id' | 'discharge'> & {
   dischargeDate: string,
   dischargeCriteria: string,
 };
 
+type OccupationalHealthcareFormValues = Omit<OccupationalHealthcareEntry, 'id' | 'sickLeave'> & {
+  sickLeaveStartDate: string,
+  sickLeaveEndDate: string,
+};
+
+export type FormValues = HospitalEntryFormValues | OccupationalHealthcareFormValues | Omit<HealthCheckEntry, 'id'>;
+
 export const AddEntryForm = ({ onSubmit, onCancel } : Props ) => {
   const [{ diagnoses }] = useStateValue();
 
-  const renderTypeDependentFields = (values: EntryWithoutId): JSX.Element | null => {
+  const renderTypeDependentFields = (values: FormValues): JSX.Element | null => {
     switch (values.type) {
     case "Hospital":
       return (
@@ -28,13 +35,13 @@ export const AddEntryForm = ({ onSubmit, onCancel } : Props ) => {
           <Field
             label="Discharge Date"
             placeholder="YYYY-MM-DD"
-            name="discharge.date"
+            name="dischargeDate"
             component={TextField}
           />
           <Field
             label="Discharge Criteria"
             placeholder="Discharge Criteria"
-            name="discharge.criteria"
+            name="dischargeCriteria"
             component={TextField}
           />
         </>
@@ -53,15 +60,21 @@ export const AddEntryForm = ({ onSubmit, onCancel } : Props ) => {
       return (
         <>
           <Field
+            label="Employer Name"
+            placeholder="Employer Name"
+            name="employerName"
+            component={TextField}
+          />
+          <Field
             label="Sick leave start date"
             placeholder="YYYY-MM-DD"
-            name="sickLeave.startDate"
+            name="sickLeaveStartDate"
             component={TextField}
           />
           <Field
             label="Sick leave end date"
             placeholder="YYYY-MM-DD"
-            name="sickLeave.endDate"
+            name="sickLeaveEndDate"
             component={TextField}
           />
           <Field
@@ -80,11 +93,9 @@ export const AddEntryForm = ({ onSubmit, onCancel } : Props ) => {
     }
   };
 
-  /* TODO: flatten object values and replace any with string */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  type FieldErrors = { [field: string]: any };
+  type FieldErrors = { [field: string]: string };
 
-  const validate = (values: EntryWithoutId): FieldErrors => {
+  const validate = (values: FormValues): FieldErrors => {
     const requiredError = "Field is required";
     const malformattedDateError = "Invalid date";
     const malformattedNumberError = "Invalid value. Valid values are 0 - 3";
@@ -102,29 +113,22 @@ export const AddEntryForm = ({ onSubmit, onCancel } : Props ) => {
       errors.date = malformattedDateError;
     }
 
+    if (!values.date) {
+      errors.date = requiredError;
+    }
+
     switch (values.type) {
     case "Hospital":
-      if (!values.specialist) {
-        errors.specialist = requiredError;
-      }
-      if (!isValidDate(values.discharge.date)) {
+      if (!isValidDate(values.dischargeDate)) {
         errors.dischargeDate = malformattedDateError;
       }
-
-      if (values.discharge) {
-        errors.discharge = {};
-        if (!isValidDate(values.discharge.date)) {
-          errors.discharge.date = malformattedDateError;
-        }
-        if (!values.discharge.date) {
-          errors.discharge.date = requiredError;
-        }
-        if (!values.discharge.criteria) {
-          errors.discharge.criteria = requiredError;
-        }
-  
+      if (!values.dischargeDate) {
+        errors.dischargeDate = requiredError;
       }
-
+      if (!values.dischargeCriteria) {
+        errors.dischargeCriteria = requiredError;
+      }
+  
       break;
     case "HealthCheck":
       if (!isValidHealthCheckRating(values.healthCheckRating)) {
@@ -132,36 +136,35 @@ export const AddEntryForm = ({ onSubmit, onCancel } : Props ) => {
       }
       break;
     case "OccupationalHealthcare":
-      if (!isValidHealthCheckRating(values.healthCheckRating)) {
+      if (values.healthCheckRating !== undefined && !isValidHealthCheckRating(values.healthCheckRating)) {
         errors.healthCheckRating = malformattedNumberError;
       }
 
-      if (values.employerName ) {
+      if (!values.employerName) {
         errors.employerName = requiredError;
       }
 
-      if (values.sickLeave) {
-        errors.sickLeave = {};
-        if (values.sickLeave.startDate && !isValidDate(values.sickLeave.startDate)) {
-          errors.sickLeave.startDate = malformattedDateError;
-        }
-        if (values.sickLeave.endDate && !values.sickLeave.startDate) {
-          errors.sickLeave.startDate = requiredError;
-        }
-        if (values.sickLeave.startDate && !values.sickLeave.endDate) {
-          errors.sickLeave.endDate = requiredError;
-        }
-        if (values.sickLeave.endDate && !isValidDate(values.sickLeave.endDate)) {
-          errors.sickLeave.endDate = malformattedDateError;
-        }
+      if (values.sickLeaveStartDate && !isValidDate(values.sickLeaveStartDate)) {
+        errors.sickLeaveStartDate = malformattedDateError;
       }
+
+      if (values.sickLeaveEndDate && !values.sickLeaveStartDate) {
+        errors.sickLeaveStartDate = requiredError;
+      }
+
+      if (values.sickLeaveEndDate && !isValidDate(values.sickLeaveEndDate)) {
+        errors.sickLeaveEndDate = malformattedDateError;
+      }
+
+      if (values.sickLeaveStartDate && !values.sickLeaveEndDate) {
+        errors.sickLeaveEndDate = requiredError;
+      }
+
       break;
     default:
       assertNever(values);
       break;
     }
-    console.log('errors: ', errors);
-    
     return errors; 
   };
 
@@ -172,23 +175,20 @@ export const AddEntryForm = ({ onSubmit, onCancel } : Props ) => {
         date: "",
         specialist: "",
         type: "Hospital",
-        discharge: {
-          date: "",
-          criteria: ""
-        }
+        dischargeCriteria: "",
+        dischargeDate: "",
       }}
       onSubmit={onSubmit}
       validate={values => validate(values)}
     >
-      {({ isValid, dirty, setFieldValue, setFieldTouched, values  }) => {
-        console.log('miska / values: ', values);
-        
+      {({ isValid, dirty, setFieldValue, setFieldTouched, values, initialValues  }) => {        
         return (
           <Form className="form ui">
             <EntryTypeSelection
               setFieldValue={setFieldValue}
               setFieldTouched={setFieldTouched}
               entryTypes={["Hospital", "HealthCheck", "OccupationalHealthcare"]}
+              initialValues={initialValues}
             />
             <Field
               label="Description"
